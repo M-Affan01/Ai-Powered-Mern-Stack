@@ -1197,3 +1197,196 @@ font-weight: bold;
 background: rgba(106, 17, 203, 0.3);
 color: white;
 }
+
+/* Custom Cursor Styles */
+* {
+    cursor: none !important;
+}
+
+.cursor-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--primary);
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    z-index: 999999;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.1s ease;
+    mix-blend-mode: difference;
+}
+
+.cursor-dot-outline {
+    width: 40px;
+    height: 40px;
+    background-color: transparent;
+    border: 2px solid var(--primary);
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    z-index: 999998;
+    pointer-events: none;
+    transition: all 0.15s ease-out;
+    mix-blend-mode: difference;
+}
+
+.cursor-dot.hidden {
+    opacity: 0;
+}
+
+.cursor-dot-outline.hidden {
+    opacity: 0;
+}
+
+.cursor-dot-outline.expand {
+    width: 60px;
+    height: 60px;
+    border-width: 1px;
+    background-color: rgba(106, 17, 203, 0.1);
+}
+
+.cursor-dot-outline.click {
+    width: 25px;
+    height: 25px;
+    border-color: var(--success);
+    background-color: rgba(0, 212, 170, 0.1);
+}
+
+.cursor-dot-outline.hover {
+    width: 60px;
+    height: 60px;
+    border-color: var(--secondary);
+    background-color: rgba(37, 117, 252, 0.1);
+}
+
+.cursor-dot-outline.text-hover {
+    width: 4px;
+    height: 24px;
+    border-radius: 2px;
+    background-color: var(--primary);
+    border: none;
+}
+
+.cursor-dot.pulse {
+    animation: cursorPulse 0.5s ease-out;
+}
+
+.cursor-dot-outline.pulse {
+    animation: cursorOutlinePulse 0.5s ease-out;
+}
+
+.cursor-trail {
+    position: fixed;
+    width: 4px;
+    height: 4px;
+    background-color: rgba(106, 17, 203, 0.3);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 999997;
+    opacity: 0;
+}
+
+@keyframes cursorPulse {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 0.5;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes cursorOutlinePulse {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 0.7;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Hide cursor on touch devices */
+@media (max-width: 768px) {
+    * {
+        cursor: auto !important;
+    }
+    
+    .cursor-dot,
+    .cursor-dot-outline,
+    .cursor-trail {
+        display: none !important;
+    }
+}
+
+/* Enhance existing hover effects with cursor interaction */
+button:hover, 
+a:hover, 
+.theme-toggle:hover, 
+.copy-btn:hover, 
+.generate-btn:hover, 
+.export-btn:hover,
+.state:hover,
+.toggle-password:hover,
+.generated-password button:hover,
+.requirement:hover {
+    transform: translateY(-2px) scale(1.02);
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Cursor context hints */
+[data-cursor-hint] {
+    position: relative;
+}
+
+[data-cursor-hint]:hover::after {
+    content: attr(data-cursor-hint);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    z-index: 1000000;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+[data-cursor-hint]:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-8px);
+}
+
+/* Cursor trail color variations */
+.cursor-trail.success {
+    background-color: rgba(0, 212, 170, 0.3) !important;
+}
+
+.cursor-trail.error {
+    background-color: rgba(255, 107, 107, 0.3) !important;
+}
+
+.cursor-trail.warning {
+    background-color: rgba(255, 183, 77, 0.3) !important;
+}
