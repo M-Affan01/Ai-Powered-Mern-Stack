@@ -912,4 +912,275 @@ window.addEventListener('click', function(event) {
         reportModal.style.display = 'none';
     }
 });
+// Custom Cursor Effect
+class CustomCursor {
+    constructor() {
+        this.cursorVisible = false;
+        this.cursorEnlarged = false;
+        this.cursorTextHover = false;
+        this.endX = window.innerWidth / 2;
+        this.endY = window.innerHeight / 2;
+        this._x = 0;
+        this._y = 0;
+        this.trail = [];
+        this.trailLength = 10;
+        this.requestId = null;
+        
+        // Initialize cursor elements
+        this.initCursor();
+        
+        // Set up event listeners
+        this.setupEventListeners();
+        
+        // Start animation loop
+        this.animateDotOutline();
+    }
+    
+    initCursor() {
+        // Create cursor elements
+        this.cursorDot = document.createElement('div');
+        this.cursorDot.className = 'cursor-dot hidden';
+        
+        this.cursorOutline = document.createElement('div');
+        this.cursorOutline.className = 'cursor-dot-outline hidden';
+        
+        // Add to DOM
+        document.body.appendChild(this.cursorDot);
+        document.body.appendChild(this.cursorOutline);
+        
+        // Create trail particles
+        for (let i = 0; i < this.trailLength; i++) {
+            const trailParticle = document.createElement('div');
+            trailParticle.className = 'cursor-trail';
+            document.body.appendChild(trailParticle);
+            this.trail.push({
+                element: trailParticle,
+                x: this.endX,
+                y: this.endY,
+                delay: i * 3
+            });
+        }
+    }
+    
+    setupEventListeners() {
+        // Mouse events
+        document.addEventListener('mousemove', (e) => {
+            this.cursorVisible = true;
+            this.cursorDot.classList.remove('hidden');
+            this.cursorOutline.classList.remove('hidden');
+            
+            this.endX = e.clientX;
+            this.endY = e.clientY;
+            
+            // Update trail positions
+            this.updateTrail();
+        });
+        
+        document.addEventListener('mouseenter', () => {
+            this.cursorVisible = true;
+            this.cursorDot.classList.remove('hidden');
+            this.cursorOutline.classList.remove('hidden');
+        });
+        
+        document.addEventListener('mouseleave', () => {
+            this.cursorVisible = false;
+            this.cursorDot.classList.add('hidden');
+            this.cursorOutline.classList.add('hidden');
+        });
+        
+        // Click events
+        document.addEventListener('mousedown', () => {
+            this.cursorOutline.classList.add('click');
+            this.cursorDot.classList.add('pulse');
+        });
+        
+        document.addEventListener('mouseup', () => {
+            this.cursorOutline.classList.remove('click');
+        });
+        
+        // Hover events for interactive elements
+        const interactiveElements = [
+            'button', 'a', 'input', 'textarea', 'select',
+            '.theme-toggle', '.copy-btn', '.generate-btn', '.export-btn',
+            '.state', '.toggle-password', '.generated-password button',
+            '.requirement', '.tooltip'
+        ];
+        
+        interactiveElements.forEach(selector => {
+            document.querySelectorAll(selector).forEach(element => {
+                element.addEventListener('mouseenter', () => {
+                    this.cursorOutline.classList.add('hover');
+                    this.cursorOutline.classList.add('pulse');
+                    
+                    // Special handling for text inputs
+                    if (selector === 'input' || selector === 'textarea') {
+                        this.cursorOutline.classList.add('text-hover');
+                    }
+                });
+                
+                element.addEventListener('mouseleave', () => {
+                    this.cursorOutline.classList.remove('hover');
+                    this.cursorOutline.classList.remove('text-hover');
+                });
+            });
+        });
+        
+        // Window resize
+        window.addEventListener('resize', () => {
+            this.updateCursorPosition();
+        });
+        
+        // Touch device detection
+        if ('ontouchstart' in window || navigator.maxTouchPoints) {
+            this.destroy();
+        }
+    }
+    
+    updateCursorPosition() {
+        this._x += (this.endX - this._x) * 0.15;
+        this._y += (this.endY - this._y) * 0.15;
+        
+        this.cursorDot.style.left = this._x + 'px';
+        this.cursorDot.style.top = this._y + 'px';
+        
+        this.cursorOutline.style.left = this.endX + 'px';
+        this.cursorOutline.style.top = this.endY + 'px';
+    }
+    
+    updateTrail() {
+        this.trail.forEach((particle, index) => {
+            setTimeout(() => {
+                particle.x += (this.endX - particle.x) * 0.3;
+                particle.y += (this.endY - particle.y) * 0.3;
+                
+                const opacity = 1 - (index / this.trailLength);
+                particle.element.style.left = particle.x + 'px';
+                particle.element.style.top = particle.y + 'px';
+                particle.element.style.opacity = opacity;
+                particle.element.style.backgroundColor = `rgba(106, 17, 203, ${0.3 * opacity})`;
+            }, particle.delay);
+        });
+    }
+    
+    animateDotOutline() {
+        this.updateCursorPosition();
+        this.requestId = requestAnimationFrame(this.animateDotOutline.bind(this));
+    }
+    
+    // Special effects for specific events
+    showSuccessEffect() {
+        this.cursorOutline.classList.add('expand');
+        this.cursorDot.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--success').trim();
+        this.cursorOutline.style.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--success').trim();
+        
+        setTimeout(() => {
+            this.cursorOutline.classList.remove('expand');
+            this.cursorDot.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+            this.cursorOutline.style.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+        }, 500);
+    }
+    
+    showErrorEffect() {
+        this.cursorOutline.classList.add('pulse');
+        this.cursorDot.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--danger').trim();
+        this.cursorOutline.style.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--danger').trim();
+        
+        setTimeout(() => {
+            this.cursorDot.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+            this.cursorOutline.style.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+        }, 300);
+    }
+    
+    destroy() {
+        // Remove cursor elements
+        if (this.cursorDot) this.cursorDot.remove();
+        if (this.cursorOutline) this.cursorOutline.remove();
+        this.trail.forEach(particle => particle.element.remove());
+        
+        // Cancel animation frame
+        if (this.requestId) {
+            cancelAnimationFrame(this.requestId);
+        }
+        
+        // Remove cursor hiding from all elements
+        document.querySelectorAll('*').forEach(el => {
+            el.style.cursor = '';
+        });
+    }
+}
+
+// Initialize custom cursor
+let customCursor = null;
+
+// Initialize cursor after DOM is loaded
+function initCustomCursor() {
+    // Only initialize on non-touch devices
+    if (!('ontouchstart' in window || navigator.maxTouchPoints > 0)) {
+        customCursor = new CustomCursor();
+        
+        // Add cursor effects for specific actions
+        const copyBtn = document.getElementById('copyBtn');
+        const generateBtn = document.getElementById('generateBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const passwordInput = document.getElementById('password');
+        
+        if (copyBtn) {
+            copyBtn.addEventListener('click', () => {
+                if (customCursor) customCursor.showSuccessEffect();
+            });
+        }
+        
+        if (generateBtn) {
+            generateBtn.addEventListener('click', () => {
+                if (customCursor) customCursor.showSuccessEffect();
+            });
+        }
+        
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => {
+                if (customCursor) customCursor.showSuccessEffect();
+            });
+        }
+        
+        // Add effect when password is accepted
+        const originalValidatePassword = validatePassword;
+        window.validatePassword = function(password) {
+            const result = originalValidatePassword(password);
+            
+            // Show cursor effect if password is accepted
+            const hasMinLength = password.length >= 8;
+            const hasUppercase = /[A-Z]/.test(password);
+            const hasDigit = /[0-9]/.test(password);
+            const hasSpecial = /[^A-Za-z0-9]/.test(password);
+            
+            if (hasMinLength && hasUppercase && hasDigit && hasSpecial) {
+                if (customCursor) customCursor.showSuccessEffect();
+            } else if (password.length > 0) {
+                if (customCursor) customCursor.showErrorEffect();
+            }
+            
+            return result;
+        };
+    }
+}
+
+// Call initCustomCursor after your existing initialization
+initCustomCursor();
+
+// Update cursor theme when theme changes
+themeToggle.addEventListener('click', function() {
+    if (customCursor) {
+        // Update cursor colors based on theme
+        const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorOutline = document.querySelector('.cursor-dot-outline');
+        
+        if (cursorDot) {
+            cursorDot.style.backgroundColor = primaryColor;
+        }
+        if (cursorOutline) {
+            cursorOutline.style.borderColor = primaryColor;
+        }
+    }
+});
 });
